@@ -21,26 +21,30 @@ public class SynchedSplitLoops {
 	
 	public static void main(String[] args) {
 		Thread t1 = new Thread(() -> {
-			for(int i = 0; i < 100000; i++) {
-				counter++;
-				threadLock.notify();
-				try {
-					threadLock.wait();
-				} catch (InterruptedException e) {
-					System.out.println("error!");
+			synchronized(threadLock) {
+				for(int i = 0; i < 100000; i++) {
+					try {
+						threadLock.wait();
+					} catch (InterruptedException e) {
+						System.out.println("error!");
+					}
+					counter++;
+					threadLock.notify();
 				}
 			}
 		});
 		
 		Thread t2 = new Thread(() -> {
-			for(int i = 0; i < 100000; i++) {
-				try {
-					threadLock.wait();
-				} catch (InterruptedException e) {
-					System.out.println("error!");
+			synchronized(threadLock) {
+				for(int i = 0; i < 100000; i++) {
+					System.out.println(counter);
+					threadLock.notify();
+					try {
+						threadLock.wait();
+					} catch (InterruptedException e) {
+						System.out.println("error!");
+					}
 				}
-				System.out.println(counter);
-				threadLock.notify();
 			}
 		});
 		
